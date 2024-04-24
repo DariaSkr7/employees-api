@@ -12,7 +12,7 @@ export default function postEmployees(fastify: FastifyInstance): RouteOptions {
         },
         handler: async function (request: FastifyRequest, reply: FastifyReply) {
             const body = request.body as postBodyType
-            const empl = employeeModel.create(body)
+            const empl = await employeeModel.create(fastify, body)
 
             if (!empl) {
                 reply.code(400).send({ error: "Something went wrong" })

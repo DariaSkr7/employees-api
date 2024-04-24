@@ -12,7 +12,7 @@ export default function getEmployeeById(fastify: FastifyInstance): RouteOptions 
         },
         handler: async function (request: FastifyRequest, reply: FastifyReply) {
             const { id } = request.params as byIdType
-            const empl = employeeModel.getById(Number(id))
+            const empl = await employeeModel.getById(fastify, Number(id))
 
             if (!empl) {
                 reply.code(404).send({ error: "Employee is not found" })

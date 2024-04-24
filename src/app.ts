@@ -1,7 +1,9 @@
 import Fastify from "fastify";
 import routes from "./routes";
+import knexPlugin from "./plugins/knex-plugin";
 
 const fastify = Fastify();
+fastify.register(knexPlugin);
 fastify.register(routes);
 
 async function main() {

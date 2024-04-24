@@ -12,7 +12,7 @@ export default function deleteEmployeeById(fastify: FastifyInstance): RouteOptio
         },
         handler: async function (request: FastifyRequest, reply: FastifyReply) {
             const { id } = request.params as byIdType
-            const deleted = employeeModel.deleteById(Number(id))
+            const deleted = await employeeModel.deleteById(fastify, Number(id))
 
             if (deleted === null) {
                 reply.code(404).send({ error: "Employee is not found" })

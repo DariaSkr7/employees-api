@@ -1,5 +1,8 @@
+import { FastifyInstance } from "fastify";
 import { employeeSearchQueryType, postBodyType } from "../schemas/employee-schemas";
 import { Tribe, getById as getTribesById } from "./tribe-model";
+
+const TABLE_NAME = "employees";
 
 export interface Employee {
     id: number,
@@ -8,87 +11,35 @@ export interface Employee {
     tribe: Tribe,
 }
 
-const employees: Employee[] = [
-    {
-        id: 0,
-        name: "John Doe",
-        title: "Chief Happiness Officer",
-        tribe: {
-            id: 1,
-            name: "InternStallar",
-            department: "Other Engineering"
-        }
-    },
-    {
-        id: 1,
-        name: "Daria Skoryk",
-        title: "Itern",
-        tribe: {
-            id: 2,
-            name: "InternStallar2",
-            department: "Other Engineering"
-        }
-    },
-    {
-        id: 2,
-        name: "Ann D",
-        title: "Itern",
-        tribe: {
-            id: 2,
-            name: "InternStallar2",
-            department: "Other Engineering"
-        }
-    }
-]
-
-export function getAll(): Employee[] {
-    return structuredClone(employees);
+export async function getAll(fastify: FastifyInstance): Promise<Employee[]> {
+    return await fastify.excel.from(TABLE_NAME).select()
 }
 
-export function create(body: postBodyType): Employee | null {
-    const newId = Math.max(...employees.map((x) => x.id)) + 1
-    const tribe = getTribesById(body.tribeId)
-
-    if (tribe === null) {
-        return null
-    }
-
-    const newEmpl: Employee = {
-        id: newId,
-        title: body.title,
-        tribe: tribe,
-        name: body.name
-    }
-    employees.push(newEmpl)
-    return structuredClone(newEmpl)
+export async function create(fastify: FastifyInstance, body: postBodyType): Promise<number> {
+    return await fastify.excel.from(TABLE_NAME).insert({ name: body.name, title: body.title, tribe_id: body.tribeId });
 }
 
-export function getById(id: number): Employee | null {
-    const result = employees.filter(x => x.id === id);
+export async function getById(fastify: FastifyInstance, id: number): Promise<Employee | null> {
+    const result: Employee[] = await fastify.excel
+        .from(TABLE_NAME)
+        .where({ id })
+        .select();
 
-    if (result.length === 1) {
-        return structuredClone(result[0])
+    if (result.length === 0) {
+        return null;
     }
 
-    return null
+    return result[0];
 }
 
-export function search(query: employeeSearchQueryType): Employee[] {
-    const filtered = employees
-        .filter(x => !query.name || query.name === x.name)
-        .filter(x => !query.title || query.title === x.title)
-        .filter(x => !query.tribe || query.tribe === x.tribe.name)
-
-    return structuredClone(filtered)
-}
-
-export function deleteById(id: number): number | null {
-    const index = employees.findIndex(x => x.id === id);
-
-    if (index === -1) {
-        return null
+export async function search(fastify: FastifyInstance, query: employeeSearchQueryType): Promise<Employee[]> {
+    if (query.name || query.title || query.tribe) {
+        return fastify.excel.from(TABLE_NAME).where('name', '=', query.name ?? "").orWhere('title', '=', query.title ?? "").select()
+    } else {
+        return fastify.excel.from(TABLE_NAME).select()
     }
+}
 
-    employees.splice(index, 1)
-    return id;
+export async function deleteById(fastify: FastifyInstance, id: number): Promise<number> {
+    return fastify.excel.from(TABLE_NAME).where({ id }).del();
 }

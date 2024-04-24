@@ -12,7 +12,7 @@ export default function getEmployees(fastify: FastifyInstance): RouteOptions {
         },
         handler: async function (request: FastifyRequest, reply: FastifyReply) {
             const query = request.query as employeeSearchQueryType
-            const empl = employeeModel.search(query)
+            const empl = await employeeModel.search(fastify, query)
 
             if (!empl) {
                 reply.code(404).send({ error: "Employee is not found" })
