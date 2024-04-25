@@ -12,7 +12,7 @@ export default function getTribesById(fastify: FastifyInstance): RouteOptions {
         },
         handler: async function (request: FastifyRequest, reply: FastifyReply) {
             const { id } = request.params as byIdType
-            const tribe = tribesModel.getById(Number(id))
+            const tribe = await tribesModel.getById(fastify, Number(id))
 
             if (!tribe) {
                 reply.code(404).send({ error: "Tribe is not found" })

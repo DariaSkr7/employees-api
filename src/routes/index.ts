@@ -5,6 +5,8 @@ import getTribesById from "./get-tribes-by-id";
 import getTribes from "./get-tribes";
 import postEmployees from "./post-employee";
 import getEmployeeById from "./get-employee-by-id";
+import getEmployeesReport from "./get-employees-report";
+import deleteCache from "./delete-cache";
 
 
 export default async function routes(fastify: FastifyInstance) {
@@ -14,4 +16,6 @@ export default async function routes(fastify: FastifyInstance) {
     fastify.route(deleteEmployeeById(fastify))
     fastify.route(getTribes(fastify))
     fastify.route(getTribesById(fastify))
+    fastify.route(getEmployeesReport(fastify))
+    fastify.route(deleteCache(fastify))
 }

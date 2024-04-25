@@ -1,3 +1,6 @@
+import { FastifyInstance } from "fastify";
+
+const TABLE_NAME = "tribes";
 
 export interface Tribe {
     id: number,
@@ -5,27 +8,15 @@ export interface Tribe {
     department: string
 }
 
-const tribes: Tribe[] = [
-    {
-        id: 1,
-        name: "InternStallar",
-        department: "Other Engineering"
-    },
-    {
-        id: 2,
-        name: "InternStallar2",
-        department: "Other Engineering"
-    }
-]
-
-export function getAll(): Tribe[] {
-    return structuredClone(tribes);
+export async function getAll(fastify: FastifyInstance): Promise<Tribe[]> {
+    return fastify.excel.from(TABLE_NAME).select();
 }
 
-export function getById(id: number): Tribe | null {
-    const result = tribes.filter(x => x.id === id);
-    if (result.length === 1) {
-        return structuredClone(result[0])
+export async function getById(fastify: FastifyInstance, id: number): Promise<Tribe | null> {
+    const res = await fastify.excel.from(TABLE_NAME).where({ id }).select()
+
+    if (res.length === 1) {
+        return res[0]
     }
 
     return null

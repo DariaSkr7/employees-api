@@ -7,7 +7,7 @@ export default function getTribes(fastify: FastifyInstance): RouteOptions {
         method: "GET",
         url: "/api/tribes",
         handler: async function (request: FastifyRequest, reply: FastifyReply) {
-            const tribes = tribesModel.getAll()
+            const tribes = await tribesModel.getAll(fastify)
             reply.code(200).send(tribes);
         }
     }
